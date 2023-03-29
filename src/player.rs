@@ -1,9 +1,9 @@
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
-use crate::general::components::Speed;
+use crate::general::{components::Speed, constants::KEYMAP};
 
-pub const PLAYER_BASE_SPEED: f32 = 500.0;
+pub const PLAYER_SPEED: f32 = 200.0;
 
 // Player component (marker)
 #[derive(Component)]
@@ -23,36 +23,48 @@ pub fn spawn_player(mut commands: Commands) {
         .insert(RigidBody::Dynamic)
         .insert(Velocity {
             linvel: Vec2::new(0.0, 0.0),
-            angvel: 0.0
+            angvel: 0.0,
         })
         .insert(GravityScale(0.0))
         .insert(Sleeping::disabled())
         .insert(Collider::cuboid(25.0, 25.0))
         .insert(LockedAxes::ROTATION_LOCKED)
-        .insert(Damping { linear_damping: 0.5, angular_damping: 1.0 })
-        .insert(Speed(PLAYER_BASE_SPEED))
+        .insert(Damping {
+            linear_damping: 0.5,
+            angular_damping: 1.0,
+        })
+        .insert(Speed(PLAYER_SPEED))
         .insert(Player);
 }
 
 pub fn player_movement(
-    time: Res<Time>,
     keys: Res<Input<KeyCode>>,
     mut players: Query<(&Speed, &mut Velocity, &Transform), With<Player>>,
     mut cameras: Query<&mut Transform, (With<Camera2d>, Without<Player>)>,
 ) {
     let mut camera_transform = cameras.single_mut();
     for (speed, mut velocity, transform) in players.iter_mut() {
-        if keys.pressed(KeyCode::W) {
-            velocity.linvel.y += speed.0 * time.delta_seconds();
+        // Start Moving
+        if keys.pressed(KEYMAP::FORWARD) {
+            velocity.linvel.y = speed.0;
         }
-        if keys.pressed(KeyCode::S) {
-            velocity.linvel.y -= speed.0 * time.delta_seconds();
+        if keys.pressed(KEYMAP::BACKWARD) {
+            velocity.linvel.y = -1.0 * speed.0;
         }
-        if keys.pressed(KeyCode::A) {
-            velocity.linvel.x -= speed.0 * time.delta_seconds();
+        if keys.pressed(KEYMAP::LEFT) {
+            velocity.linvel.x = -1.0 * speed.0;
         }
-        if keys.pressed(KeyCode::D) {
-            velocity.linvel.x += speed.0 * time.delta_seconds();
+        if keys.pressed(KEYMAP::RIGHT) {
+            velocity.linvel.x = speed.0;
+        }
+
+        // Stop moving
+        if keys.just_released(KEYMAP::FORWARD) || keys.just_released(KEYMAP::BACKWARD) {
+            velocity.linvel.y = 0.0;
+        }
+
+        if keys.just_released(KEYMAP::LEFT) || keys.just_released(KEYMAP::RIGHT) {
+            velocity.linvel.x = 0.0;
         }
 
         // Move the camera to match the player's position

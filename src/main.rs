@@ -9,6 +9,7 @@ use bevy::{
 };
 use bevy_rapier2d::prelude::*;
 
+use general::constants::PIXELS_PER_METER;
 use obstacle::spawn_obstacle;
 use player::{player_movement, spawn_player};
 
@@ -32,7 +33,9 @@ fn main() {
             ..default()
         }))
         .add_plugin(FrameTimeDiagnosticsPlugin::default())
-        .add_plugin(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(1.0))
+        .add_plugin(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(
+            PIXELS_PER_METER,
+        ))
         .add_plugin(RapierDebugRenderPlugin::default())
         .add_startup_system(setup_graphics)
         .add_startup_system(setup_physics)
