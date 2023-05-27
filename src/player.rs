@@ -1,23 +1,34 @@
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
-use crate::general::{components::Speed, constants::KEYMAP};
+use crate::constants::{
+    DRAW_LAYER,
+    KEYMAP
+};
+use crate::general::components::Speed;
 
 pub const PLAYER_SPEED: f32 = 200.0;
 
 // Player component (marker)
-#[derive(Component)]
+#[derive(Component, Default)]
 pub struct Player;
+
+#[derive(Bundle)]
+pub struct PlayerBundle {
+    p: Player,
+    #[bundle]
+    sprite_bundle: SpriteSheetBundle,
+}
 
 pub fn spawn_player(mut commands: Commands) {
     commands
         .spawn(SpriteBundle {
             sprite: Sprite {
                 color: Color::rgb(0.25, 0.25, 0.75),
-                custom_size: Some(Vec2::new(50.0, 50.0)),
+                custom_size: Some(Vec2::new(32.0, 32.0)),
                 ..default()
             },
-            transform: Transform::from_translation(Vec3::new(0., 0., 0.)),
+            transform: Transform::from_translation(Vec3::new(64., 64., DRAW_LAYER::ENTITIES)),
             ..default()
         })
         .insert(RigidBody::Dynamic)
@@ -27,7 +38,7 @@ pub fn spawn_player(mut commands: Commands) {
         })
         .insert(GravityScale(0.0))
         .insert(Sleeping::disabled())
-        .insert(Collider::cuboid(25.0, 25.0))
+        .insert(Collider::cuboid(16.0, 16.0))
         .insert(LockedAxes::ROTATION_LOCKED)
         .insert(Damping {
             linear_damping: 0.5,

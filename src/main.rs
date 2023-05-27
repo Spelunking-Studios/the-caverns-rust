@@ -1,15 +1,22 @@
+mod constants;
 mod general;
+mod map;
 mod obstacle;
 mod player;
 
 use bevy::{
     app::AppExit,
     diagnostic::{Diagnostics, FrameTimeDiagnosticsPlugin},
+    log::LogPlugin,
     prelude::*,
 };
 use bevy_rapier2d::prelude::*;
 
-use general::constants::PIXELS_PER_METER;
+use constants::{LOG_FILTER, PIXELS_PER_METER};
+use map::{
+    plugin::MapPlugin,
+    state::{MapReadinessState, MapState},
+};
 use obstacle::spawn_obstacle;
 use player::{player_movement, spawn_player};
 
@@ -25,20 +32,30 @@ struct FPSText {
 
 fn main() {
     App::new()
-        .add_plugins(DefaultPlugins.set(WindowPlugin {
-            primary_window: Some(Window {
-                title: "The Caverns".into(),
-                ..default()
-            }),
-            ..default()
-        }))
+        .insert_resource(ClearColor(Color::rgb(0.0, 0.0, 0.0)))
+        .add_plugins(
+            DefaultPlugins
+                .set(WindowPlugin {
+                    primary_window: Some(Window {
+                        title: "The Caverns".into(),
+                        ..default()
+                    }),
+                    ..default()
+                })
+                .set(LogPlugin {
+                    filter: LOG_FILTER.into(),
+                    level: bevy::log::Level::DEBUG,
+                }),
+        )
         .add_plugin(FrameTimeDiagnosticsPlugin::default())
         .add_plugin(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(
             PIXELS_PER_METER,
         ))
         .add_plugin(RapierDebugRenderPlugin::default())
-        .add_startup_system(setup_graphics)
-        .add_startup_system(setup_physics)
+        .add_plugin(MapPlugin::default())
+        .add_startup_system(setup)
+        .add_startup_system(create_fps_text)
+        .add_startup_system(spawn_obstacles)
         .add_startup_system(spawn_player)
         .add_system(fps_text_system)
         .add_system(handle_input)
@@ -46,10 +63,40 @@ fn main() {
         .run();
 }
 
-fn setup_graphics(mut commands: Commands, asset_server: Res<AssetServer>) {
+/// Setup system that loads everything needed to get the game off the ground
+fn setup(
+    mut commands: Commands,
+    mut map_state: ResMut<MapState>,
+    mut next_map_readiness: ResMut<NextState<MapReadinessState>>,
+    asset_server: Res<AssetServer>,
+) {
     // Camera
     commands.spawn((Camera2dBundle::default(), GameCamera));
+    debug!("Setup camera");
 
+    // World
+    info!("Loading world...");
+    map_state.handle = asset_server.load("tiled/test.tmx"); // Load the map asset
+    next_map_readiness.set(MapReadinessState::Loading); // Switch into the loading state
+}
+
+fn spawn_obstacles(mut commands: Commands) {
+    /* spawn_obstacle(
+        &mut commands,
+        Color::rgb(0.1, 0.1, 0.1),
+        Some(Vec2::new(64.0, 64.0)),
+        Transform::from_translation(Vec3::new(-150.0, 0.0, 0.0)),
+    );
+
+    spawn_obstacle(
+        &mut commands,
+        Color::rgb(0.5, 0.7, 0.0),
+        Some(Vec2::new(32.0, 48.0)),
+        Transform::from_translation(Vec3::new(200.0, 150.0, 0.0)),
+    ); */
+}
+
+fn create_fps_text(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands.spawn((
         TextBundle::from_section(
             "FPS: -1",
@@ -71,31 +118,11 @@ fn setup_graphics(mut commands: Commands, asset_server: Res<AssetServer>) {
         }),
         FPSText { timer: 0.0 },
     ));
-
-    spawn_obstacle(
-        &mut commands,
-        Color::rgb(0.0, 0.0, 0.0),
-        Some(Vec2::new(100.0, 100.0)),
-        Transform::from_translation(Vec3::new(-150.0, 0.0, 0.0)),
-    );
-
-    spawn_obstacle(
-        &mut commands,
-        Color::rgb(0.5, 0.7, 0.0),
-        Some(Vec2::new(50.0, 75.0)),
-        Transform::from_translation(Vec3::new(200.0, 150.0, 0.0)),
-    );
-}
-
-fn setup_physics(mut commands: Commands) {
-    commands
-        .spawn(Collider::cuboid(50.0, 50.0))
-        .insert(TransformBundle::from(Transform::from_xyz(-150.0, 0.0, 0.0)));
 }
 
 fn handle_input(keys: Res<Input<KeyCode>>, mut exit: EventWriter<AppExit>) {
     if keys.pressed(KeyCode::Escape) {
-        println!("Quitting...");
+        info!("Quitting...");
         exit.send(AppExit);
     }
 }
@@ -118,5 +145,25 @@ fn fps_text_system(
                 text.0.sections[0].value = format!("FPS: {value:.2}");
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn setup_worked() {
+        // Setup app
+        let mut app: App = App::new();
+
+        // Add systems & plugins
+        app.add_startup_system(setup);
+
+        // Update the app
+        app.update();
+
+        // Validate world
+        assert_eq!(app.world.query::<&GameCamera>().iter(&app.world).len(), 1);
     }
 }

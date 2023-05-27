@@ -1,0 +1,42 @@
+{
+    "Map/SizeTest": {
+        "height": 4300,
+        "width": 2
+    },
+    "activeFile": "test.tmx",
+    "expandedProjectPaths": [
+        "."
+    ],
+    "file.lastUsedOpenFilter": "All Files (*)",
+    "fileStates": {
+        "Main Tileset.tsx": {
+            "dynamicWrapping": true,
+            "scaleInDock": 0.75,
+            "scaleInEditor": 1
+        },
+        "test.tmx": {
+            "scale": 0.795625,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 641.005498821681,
+                "y": 319.8743126472898
+            }
+        }
+    },
+    "last.externalTilesetPath": "/home/ben/coding/the-caverns-rust/assets/tiled",
+    "last.imagePath": "/home/ben/coding/the-caverns-rust/assets/images",
+    "map.lastUsedFormat": "tmx",
+    "openFiles": [
+        "test.tmx"
+    ],
+    "project": "the-caverns.tiled-project",
+    "recentFiles": [
+        "test.tmx",
+        "Main Tileset.tsx"
+    ],
+    "resizeMap.removeObjects": false,
+    "tileset.lastUsedFilter": "Tiled tileset files (*.tsx *.xml)",
+    "tileset.lastUsedFormat": "tsx",
+    "tileset.transparentColor": "#000000",
+    "tileset.type": 0
+}

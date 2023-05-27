@@ -1,18 +1,25 @@
 [package]
-name = "the-caverns-rust"
+name = "the_caverns"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-bevy = { version = "0.10.0", features = ["wayland"] }
+bevy = { version = "0.10.0", features = ["wayland", "dynamic_linking"] }
 bevy_rapier2d = { version = "0.21.0", features = ["simd-stable", "debug-render-2d"] }
+tiled = "0.11.0"
 
 # Enable a small amount of optimization in debug mode
 [profile.dev]
 opt-level = 1
+lto = "off"
 
 [profile.dev.package."*"]
 opt-level = 3
 
 [profile.dev.package.bevy_rapier2d]
 opt-level = 3
+
+[profile.release]
+opt-level = 3
+lto = "fat"
+strip = "debuginfo"
