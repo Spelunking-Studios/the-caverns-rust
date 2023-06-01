@@ -142,8 +142,8 @@ pub fn setup_map(
     let mut layers: Vec<tiled::Layer> = vec![];
 
     for layer in map.map.layers() {
-        layers.push(layer);  // Add the layer to the end
-        layers.rotate_right(1);  // Rotate the vector so the last item is the first
+        layers.push(layer); // Add the layer to the end
+        layers.rotate_right(1); // Rotate the vector so the last item is the first
     }
 
     // Get a iterable of all of the tile layers
