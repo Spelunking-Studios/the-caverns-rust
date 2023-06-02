@@ -114,8 +114,8 @@ fn create_fps_text(mut commands: Commands, asset_server: Res<AssetServer>) {
 }
 
 fn handle_input(keys: Res<Input<KeyCode>>, mut exit: EventWriter<AppExit>) {
+    // Quit
     if keys.pressed(KeyCode::Escape) {
-        info!("Quitting...");
         exit.send(AppExit);
     }
 }

@@ -2,20 +2,32 @@
 
 use super::{state::GameMenuState, util::start_game};
 use crate::map::state::{MapReadinessState, MapState};
-use bevy::prelude::*;
+use bevy::{
+    app::AppExit,
+    prelude::*
+};
+
+// Really helpful consts and macros
+const YELLOW: Color = Color::hsl(50.69, 0.9684, 0.5039);
+const BUTTON_COLOR: Color = YELLOW;
+const BUTTON_COLOR_HOVER: Color = Color::hsl(50.69, 0.9684, 0.45);
+const BUTTON_FONT: &str = "fonts/joystix monospace.otf";
+const BUTTON_FONT_SIZE: f32 = 30.0;
 
 /// A marker component for the start button
 #[derive(Debug, Component)]
 pub struct StartButton;
 
+/// A marker component for the quit button
+#[derive(Debug, Component)]
+pub struct QuitButton;
+
 /// Marks a UI node as being a root node of the UI
-/// 
+///
 /// This is used to select all of the root nodes in the menu UI when the menu
 /// is being despawned
 #[derive(Debug, Component)]
 pub struct MenuRootNode;
-
-const BUTTON_FONT_SIZE: f32 = 30.0;
 
 /// Spawns in the UI and is responsible for init of anything the menu needs
 pub fn setup_start_screen(mut commands: Commands, asset_server: Res<AssetServer>) {
@@ -45,9 +57,9 @@ pub fn setup_start_screen(mut commands: Commands, asset_server: Res<AssetServer>
             parent.spawn(TextBundle::from_section(
                 "The Caverns",
                 TextStyle {
-                    font: asset_server.load("fonts/joystix monospace.otf"),
+                    font: asset_server.load(BUTTON_FONT),
                     font_size: 80.0,
-                    color: Color::rgb(1.0, 1.0, 0.0),
+                    color: YELLOW,
                 },
             ));
         });
@@ -71,13 +83,12 @@ pub fn setup_start_screen(mut commands: Commands, asset_server: Res<AssetServer>
             parent
                 .spawn(ButtonBundle {
                     style: Style {
-                        min_size: Size::new(Val::Px(150.0), Val::Px(65.0)),
-                        max_size: Size::new(Val::Px(165.0), Val::Px(71.5)),
+                        size: Size::new(Val::Px(150.0), Val::Px(65.0)),
                         justify_content: JustifyContent::Center,
                         align_items: AlignItems::Center,
                         ..default()
                     },
-                    background_color: Color::rgb(1.0, 1.0, 0.0).into(),
+                    background_color: BUTTON_COLOR.into(),
                     ..default()
                 })
                 .insert(StartButton)
@@ -85,9 +96,33 @@ pub fn setup_start_screen(mut commands: Commands, asset_server: Res<AssetServer>
                     parent.spawn(TextBundle::from_section(
                         "Start",
                         TextStyle {
+                            font: asset_server.load(BUTTON_FONT),
+                            font_size: BUTTON_FONT_SIZE,
+                            color: Color::BLACK,
+                        },
+                    ));
+                });
+
+            // Quit button
+            parent
+                .spawn(ButtonBundle {
+                    style: Style {
+                        size: Size::new(Val::Px(150.0), Val::Px(65.0)),
+                        justify_content: JustifyContent::Center,
+                        align_items: AlignItems::Center,
+                        ..default()
+                    },
+                    background_color: BUTTON_COLOR.into(),
+                    ..default()
+                })
+                .insert(QuitButton)
+                .with_children(|parent| {
+                    parent.spawn(TextBundle::from_section(
+                        "Quit",
+                        TextStyle {
                             font: asset_server.load("fonts/joystix monospace.otf"),
-                            font_size: 30.0,
-                            color: Color::rgb(0.0, 0.0, 0.0),
+                            font_size: BUTTON_FONT_SIZE,
+                            color: Color::BLACK,
                         },
                     ));
                 });
@@ -113,25 +148,17 @@ pub fn cleanup_start_screen(
 #[allow(clippy::type_complexity)]
 pub fn update_button_hover_state(
     mut interaction_query: Query<
-        (&Interaction, &mut Style, &Children),
+        (&Interaction, &mut BackgroundColor),
         (Changed<Interaction>, With<Button>),
     >,
-    mut text_query: Query<&mut Text>,
 ) {
-    for (interaction, mut style, children) in &mut interaction_query {
-        // Grab the text of the button
-        let mut text = text_query.get_mut(children[0]).unwrap();
-
+    for (interaction, mut color) in &mut interaction_query {
         match *interaction {
             Interaction::Hovered => {
-                // Big button
-                style.size = style.max_size;
-                text.sections[0].style.font_size = BUTTON_FONT_SIZE * 1.1;
+                *color = BUTTON_COLOR_HOVER.into();
             }
             Interaction::None => {
-                // Normal size button
-                style.size = style.min_size;
-                text.sections[0].style.font_size = BUTTON_FONT_SIZE;
+                *color = BUTTON_COLOR.into();
             }
             _ => {}
         }
@@ -156,8 +183,6 @@ pub fn update_start_button(
 ) {
     for interaction in &mut interaction_query {
         if *interaction == Interaction::Clicked {
-            debug!("Start button clicked");
-
             // Set the menu's state
             next_state.set(GameMenuState::InGame);
 
@@ -166,6 +191,18 @@ pub fn update_start_button(
 
             // Start the game
             start_game(&mut commands, &mut map_state, &asset_server);
+        }
+    }
+}
+
+/// Adds functionality to the quit button
+pub fn update_quit_button(
+    mut interaction_query: Query<&Interaction, (Changed<Interaction>, With<QuitButton>)>,
+    mut exit_event: EventWriter<AppExit>
+) {
+    for interaction in &mut interaction_query {
+        if *interaction == Interaction::Clicked {
+            exit_event.send(AppExit);
         }
     }
 }
