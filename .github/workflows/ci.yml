@@ -28,7 +28,7 @@ jobs:
       - name: Install Nightly Rust toolchain
         uses: dtolnay/rust-toolchain@nightly
       - name: Install system dependencies
-        run: sudo apt update; sudo apt install pkg-config libx11-dev libasound2-dev libudev-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev libwayland-dev
+        run: sudo apt update; sudo apt install pkg-config libx11-dev libasound2-dev libudev-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev libwayland-dev libxkbcommon
       - name: Run cargo build
         run: cargo build --verbose
 
@@ -53,7 +53,7 @@ jobs:
         with:
           components: clippy
       - name: Install Dependencies
-        run: sudo apt-get update; sudo apt-get install pkg-config libx11-dev libasound2-dev libudev-dev libwayland-dev
+        run: sudo apt-get update; sudo apt-get install pkg-config libx11-dev libasound2-dev libudev-dev libwayland-dev libxkbcommon
       - name: Run clippy
         run: cargo clippy -- -D warnings
 
