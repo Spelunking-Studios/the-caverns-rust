@@ -1,4 +1,3 @@
-use super::{loader::setup_map, state::MapReadinessState};
 use bevy::{
     asset::{AssetLoader, FileAssetIo, LoadContext, LoadedAsset},
     prelude::*,

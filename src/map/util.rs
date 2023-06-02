@@ -1,8 +1,5 @@
 //! Utilities for the map module
 
-use super::state::MapState;
-use bevy::prelude::*;
-
 /// Converts the provided map coordinate to a world coordinate
 /// based upon the provided map.
 ///

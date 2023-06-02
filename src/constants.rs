@@ -2,6 +2,7 @@
 
 use bevy::prelude::*;
 
+#[allow(clippy::upper_case_acronyms)]
 pub struct KEYMAP {}
 
 impl KEYMAP {
