@@ -43,5 +43,5 @@ const STORY_INTRO: [&str; 7] = [
     "Where there were once animals and people living in harmony,",
     "There are now only creatures of darkness plotting their evil machinations.",
     "Where there was once a great kingdon of dwarves, their halls filled with splendor,",
-    "There is now only the remains of their dark and dusty halls..."
+    "There is now only the remains of their dark and dusty halls...",
 ];

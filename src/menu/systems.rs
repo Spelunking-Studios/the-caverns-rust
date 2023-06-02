@@ -2,10 +2,7 @@
 
 use super::{state::GameMenuState, util::start_game};
 use crate::map::state::{MapReadinessState, MapState};
-use bevy::{
-    app::AppExit,
-    prelude::*
-};
+use bevy::{app::AppExit, prelude::*};
 
 // Really helpful consts and macros
 const YELLOW: Color = Color::hsl(50.69, 0.9684, 0.5039);
@@ -198,7 +195,7 @@ pub fn update_start_button(
 /// Adds functionality to the quit button
 pub fn update_quit_button(
     mut interaction_query: Query<&Interaction, (Changed<Interaction>, With<QuitButton>)>,
-    mut exit_event: EventWriter<AppExit>
+    mut exit_event: EventWriter<AppExit>,
 ) {
     for interaction in &mut interaction_query {
         if *interaction == Interaction::Clicked {
