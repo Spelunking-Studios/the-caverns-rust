@@ -2,6 +2,7 @@
 
 > Dates indicate when a particular task was completed
 
+- [ ] Add story intro text
 - [ ] Remove the ESC keybind for quitting
 - [ ] Set window icon
 - [ ] Implement player rotation
