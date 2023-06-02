@@ -2,6 +2,7 @@
 
 use bevy::prelude::*;
 
+#[allow(clippy::upper_case_acronyms)]
 pub struct KEYMAP {}
 
 impl KEYMAP {
@@ -35,3 +36,13 @@ pub const LOG_FILTER: &str = "info,wgpu_core=warn,wgpu_hal=warn,the_caverns=debu
 
 #[cfg(not(debug_assertions))]
 pub const LOG_FILTER: &str = "warn,wgpu_core=warn,wgpu_hal=warn,the_caverns=warn";
+
+const STORY_INTRO: [&str; 7] = [
+    "A darkness has fallen upon this once beautiful land.",
+    "What was once full of life is now permeated with the stench of death and decay",
+    "Lake crystal clear and sky pure blue turned red by the smoke that chokes the air.",
+    "Where there were once animals and people living in harmony,",
+    "There are now only creatures of darkness plotting their evil machinations.",
+    "Where there was once a great kingdon of dwarves, their halls filled with splendor,",
+    "There is now only the remains of their dark and dusty halls...",
+];

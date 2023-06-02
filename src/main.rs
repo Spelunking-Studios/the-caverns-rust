@@ -1,6 +1,7 @@
 mod constants;
 mod general;
 mod map;
+mod menu;
 mod obstacle;
 mod player;
 
@@ -17,6 +18,7 @@ use map::{
     plugin::MapPlugin,
     state::{MapReadinessState, MapState},
 };
+use menu::plugin::MenuPlugin;
 use obstacle::spawn_obstacle;
 use player::{player_movement, spawn_player};
 
@@ -47,16 +49,17 @@ fn main() {
                     level: bevy::log::Level::DEBUG,
                 }),
         )
-        .add_plugin(FrameTimeDiagnosticsPlugin::default())
+        .add_plugin(FrameTimeDiagnosticsPlugin)
         .add_plugin(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(
             PIXELS_PER_METER,
         ))
         .add_plugin(RapierDebugRenderPlugin::default())
         .add_plugin(MapPlugin::default())
+        .add_plugin(MenuPlugin)
         .add_startup_system(setup)
-        .add_startup_system(create_fps_text)
-        .add_startup_system(spawn_obstacles)
-        .add_startup_system(spawn_player)
+        // .add_startup_system(create_fps_text)
+        // .add_startup_system(spawn_obstacles)
+        // .add_startup_system(spawn_player)
         .add_system(fps_text_system)
         .add_system(handle_input)
         .add_system(player_movement.after(handle_input))
@@ -64,20 +67,10 @@ fn main() {
 }
 
 /// Setup system that loads everything needed to get the game off the ground
-fn setup(
-    mut commands: Commands,
-    mut map_state: ResMut<MapState>,
-    mut next_map_readiness: ResMut<NextState<MapReadinessState>>,
-    asset_server: Res<AssetServer>,
-) {
+fn setup(mut commands: Commands) {
     // Camera
     commands.spawn((Camera2dBundle::default(), GameCamera));
     debug!("Setup camera");
-
-    // World
-    info!("Loading world...");
-    map_state.handle = asset_server.load("tiled/test.tmx"); // Load the map asset
-    next_map_readiness.set(MapReadinessState::Loading); // Switch into the loading state
 }
 
 fn spawn_obstacles(mut commands: Commands) {
@@ -121,8 +114,8 @@ fn create_fps_text(mut commands: Commands, asset_server: Res<AssetServer>) {
 }
 
 fn handle_input(keys: Res<Input<KeyCode>>, mut exit: EventWriter<AppExit>) {
+    // Quit
     if keys.pressed(KeyCode::Escape) {
-        info!("Quitting...");
         exit.send(AppExit);
     }
 }

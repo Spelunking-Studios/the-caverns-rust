@@ -1,10 +1,7 @@
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
-use crate::constants::{
-    DRAW_LAYER,
-    KEYMAP
-};
+use crate::constants::{DRAW_LAYER, KEYMAP};
 use crate::general::components::Speed;
 
 pub const PLAYER_SPEED: f32 = 200.0;
@@ -20,7 +17,7 @@ pub struct PlayerBundle {
     sprite_bundle: SpriteSheetBundle,
 }
 
-pub fn spawn_player(mut commands: Commands) {
+pub fn spawn_player(commands: &mut Commands) {
     commands
         .spawn(SpriteBundle {
             sprite: Sprite {

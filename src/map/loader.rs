@@ -51,7 +51,7 @@ use super::{
     util::map_cord_to_world_cord,
 };
 use crate::constants::{DRAW_LAYER, PIXELS_PER_METER};
-use bevy::{prelude::*, sprite::MaterialMesh2dBundle};
+use bevy::prelude::*;
 use std::path::PathBuf;
 
 /// Sets up the world's current map.
@@ -59,15 +59,13 @@ use std::path::PathBuf;
 /// This system should only run when a new map has been loaded.
 /// It is responsible for taking a Tiled Map and turning it into entities.
 #[allow(clippy::map_entry)]
+#[allow(clippy::too_many_arguments)]
 pub fn setup_map(
     mut commands: Commands,
     mut map_state: ResMut<MapState>,
     mut next_map_readiness: ResMut<NextState<MapReadinessState>>,
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<ColorMaterial>>,
     map_server: Res<Assets<MapAsset>>,
-    texture_server: Res<Assets<Image>>,
     asset_server: Res<AssetServer>,
 ) {
     // Switch into the Loaded state since the asset loader can't do that on its own
@@ -142,8 +140,8 @@ pub fn setup_map(
     let mut layers: Vec<tiled::Layer> = vec![];
 
     for layer in map.map.layers() {
-        layers.push(layer);  // Add the layer to the end
-        layers.rotate_right(1);  // Rotate the vector so the last item is the first
+        layers.push(layer); // Add the layer to the end
+        layers.rotate_right(1); // Rotate the vector so the last item is the first
     }
 
     // Get a iterable of all of the tile layers

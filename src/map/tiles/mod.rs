@@ -15,7 +15,7 @@ pub struct UnknownTile {
 #[derive(Debug, Resource)]
 pub struct UnknowTileTexture {
     pub loaded: bool,
-    pub handle: Handle<Image>
+    pub handle: Handle<Image>,
 }
 
 impl MapTile for UnknownTile {}

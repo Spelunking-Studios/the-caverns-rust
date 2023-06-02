@@ -2,9 +2,13 @@
 
 > Dates indicate when a particular task was completed
 
+- [ ] Add story intro text
+- [ ] Remove the ESC keybind for quitting
+- [ ] Set window icon
 - [ ] Implement player rotation
 - [ ] Mark tiles with custom components
 - [ ] Fix map rendering issue
+- [x] (2023-06-01) Add a start screen
 - [x] (2023-05-27) Convert the map module to use plugins rather than assets and state only
 - [x] (2023-05-27) Implement level loading
 - [x] (2023-03-26) Learn Bevy 
