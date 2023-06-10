@@ -4,5 +4,6 @@ use bevy::prelude::*;
 pub enum GameMenuState {
     #[default]
     StartScreen,
+    StorylineIntro,
     InGame,
 }
