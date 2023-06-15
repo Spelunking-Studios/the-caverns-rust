@@ -1,3 +1,5 @@
+//! General utilites that are used by multiple different modules
+
 use crate::{map::state::MapState, player::spawn_player};
 use bevy::prelude::*;
 

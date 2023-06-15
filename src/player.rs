@@ -1,22 +1,20 @@
+//! Player related code
+
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
 use crate::constants::{DRAW_LAYER, KEYMAP};
 use crate::general::components::Speed;
 
+/// Defines the player's speed as the number of meters per second.
+/// See also: [PIXELS_PER_METER](crate::constants::PIXELS_PER_METER).
 pub const PLAYER_SPEED: f32 = 200.0;
 
-// Player component (marker)
+/// A marker component for the player
 #[derive(Component, Default)]
 pub struct Player;
 
-#[derive(Bundle)]
-pub struct PlayerBundle {
-    p: Player,
-    #[bundle]
-    sprite_bundle: SpriteSheetBundle,
-}
-
+/// A utility function to make spawning the player easier
 pub fn spawn_player(commands: &mut Commands) {
     commands
         .spawn(SpriteBundle {
@@ -45,6 +43,7 @@ pub fn spawn_player(commands: &mut Commands) {
         .insert(Player);
 }
 
+/// System that handles processing the player's movements
 pub fn player_movement(
     keys: Res<Input<KeyCode>>,
     mut players: Query<(&Speed, &mut Velocity, &Transform), With<Player>>,

@@ -1,3 +1,9 @@
+//! Plugin for the menu module which keeps all of the implementation details
+//! within the menu module.
+//!
+//! This means that the the main function doesn't need to know all of the systems
+//! nor has to add them.
+
 use super::{
     state::GameMenuState,
     systems::{
@@ -8,6 +14,7 @@ use super::{
 };
 use bevy::prelude::*;
 
+/// Struct defining the menu plugin
 #[derive(Debug, Default)]
 pub struct MenuPlugin;
 

@@ -14,13 +14,21 @@ use bevy::{
 };
 
 // Really helpful consts and macros
+/// The yellow shade used
 const YELLOW: Color = Color::hsl(50.69, 0.9684, 0.5039);
+/// Uhhhhh, look at the name of the constant
 const BUTTON_COLOR: Color = YELLOW;
+/// Uhhhhh, look at the name of the constant
 const BUTTON_COLOR_HOVER: Color = Color::hsl(50.69, 0.9684, 0.45);
+/// Uhhhhh, look at the name of the constant
 const BUTTON_FONT: &str = "fonts/joystix monospace.otf";
+/// Uhhhhh, look at the name of the constant
 const TEXT_FONT: &str = "fonts/joystix monospace.otf";
+/// Uhhhhh, look at the name of the constant
 const BUTTON_FONT_SIZE: f32 = 30.0;
+/// Percentage of the screen that the storyline intro would ideally occupy
 const STORYLINE_INTRO_WPERCENT: f32 = 0.8;
+/// Minimum size of the storyline intro text bounding box
 const STORYLINE_INTRO_IDEAL_MIN: [f32; 2] = [1000.0, 500.0];
 
 /// A marker component for the start button
@@ -160,6 +168,7 @@ pub fn setup_start_screen(mut commands: Commands, asset_server: Res<AssetServer>
     debug!("Start screen setup is complete");
 }
 
+/// Spawns in the UI for the storyline intro screen
 pub fn setup_storyline_intro_screen(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
@@ -187,7 +196,7 @@ pub fn setup_storyline_intro_screen(
         .spawn(SpriteBundle {
             sprite: Sprite {
                 color: Color::rgba(0.0, 0.0, 0.0, 0.0),
-                custom_size: Some(bounds.clone()),
+                custom_size: Some(bounds),
                 ..default()
             },
             transform: Transform::from_translation(Vec3::splat(0.0)),
@@ -201,7 +210,7 @@ pub fn setup_storyline_intro_screen(
                         sections: vec![TextSection::new(
                             STORY_INTRO.join("\n\n"),
                             TextStyle {
-                                font: font,
+                                font,
                                 font_size: 20.0 + (window_size[1] * 0.005),
                                 color: YELLOW,
                             },
@@ -331,10 +340,7 @@ pub fn update_storyline_intro_screen_btn(
 }
 
 /// Despawns the UI and is responsible for deinitializing anything the menu used
-pub fn cleanup_start_screen(
-    mut commands: Commands,
-    query: Query<Entity, With<MenuRootNode>>,
-) {
+pub fn cleanup_start_screen(mut commands: Commands, query: Query<Entity, With<MenuRootNode>>) {
     debug!("Cleaning up start screen");
 
     // Desawn the UI

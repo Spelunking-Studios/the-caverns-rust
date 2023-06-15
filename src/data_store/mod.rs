@@ -1,5 +1,4 @@
-#![warn(missing_docs)]
-#![warn(clippy::missing_docs_in_private_items)]
+//! Abstractions over data storage for the game
 
 pub fn store_data() {
     todo!();

@@ -1,8 +1,13 @@
+//! The Caverns - An ARPG Game With Fantasy and D&D Elements
+
+#![warn(missing_docs)]
+#![warn(clippy::missing_docs_in_private_items)]
+
 mod constants;
+mod data_store;
 mod general;
 mod map;
 mod menu;
-mod obstacle;
 mod player;
 mod util;
 
@@ -15,21 +20,18 @@ use bevy::{
 use bevy_rapier2d::prelude::*;
 
 use constants::{LOG_FILTER, PIXELS_PER_METER};
-use map::{
-    plugin::MapPlugin,
-    state::{MapReadinessState, MapState},
-};
+use map::plugin::MapPlugin;
 use menu::plugin::MenuPlugin;
-use obstacle::spawn_obstacle;
-use player::{player_movement, spawn_player};
+use player::player_movement;
 
-// Marker component for the game's camera
+/// Marker component for the game's camera
 #[derive(Component)]
 struct GameCamera;
 
-// Marker component for the FPS text
+/// Marker component for the FPS text
 #[derive(Component)]
 struct FPSText {
+    /// Timer for how long since the FPS UI was updated
     timer: f32,
 }
 
@@ -59,8 +61,6 @@ fn main() {
         .add_plugin(MenuPlugin)
         .add_startup_system(setup)
         // .add_startup_system(create_fps_text)
-        // .add_startup_system(spawn_obstacles)
-        // .add_startup_system(spawn_player)
         .add_system(fps_text_system)
         .add_system(handle_input)
         .add_system(player_movement.after(handle_input))
@@ -74,22 +74,7 @@ fn setup(mut commands: Commands) {
     debug!("Setup camera");
 }
 
-fn spawn_obstacles(mut commands: Commands) {
-    /* spawn_obstacle(
-        &mut commands,
-        Color::rgb(0.1, 0.1, 0.1),
-        Some(Vec2::new(64.0, 64.0)),
-        Transform::from_translation(Vec3::new(-150.0, 0.0, 0.0)),
-    );
-
-    spawn_obstacle(
-        &mut commands,
-        Color::rgb(0.5, 0.7, 0.0),
-        Some(Vec2::new(32.0, 48.0)),
-        Transform::from_translation(Vec3::new(200.0, 150.0, 0.0)),
-    ); */
-}
-
+/// Spawns in the UI for the FPS counter
 fn create_fps_text(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands.spawn((
         TextBundle::from_section(
@@ -114,6 +99,7 @@ fn create_fps_text(mut commands: Commands, asset_server: Res<AssetServer>) {
     ));
 }
 
+/// Handles generic input for the game
 fn handle_input(keys: Res<Input<KeyCode>>, mut exit: EventWriter<AppExit>) {
     // Quit
     if keys.pressed(KeyCode::Escape) {
@@ -121,6 +107,7 @@ fn handle_input(keys: Res<Input<KeyCode>>, mut exit: EventWriter<AppExit>) {
     }
 }
 
+/// A system to display the game's current FPS
 fn fps_text_system(
     diagnostics: Res<Diagnostics>,
     time: Res<Time>,
