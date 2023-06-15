@@ -4,6 +4,7 @@ mod map;
 mod menu;
 mod obstacle;
 mod player;
+mod util;
 
 use bevy::{
     app::AppExit,

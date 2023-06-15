@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-bevy = { version = "0.10.0", features = ["wayland", "dynamic_linking"] }
+bevy = { version = "0.10.0", features = ["wayland"] }
 bevy_rapier2d = { version = "0.21.0", features = ["simd-stable", "debug-render-2d"] }
 tiled = "0.11.0"
 

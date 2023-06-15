@@ -1,9 +1,10 @@
 //! Defines all of the systems used by the menu plugin
 
-use super::{state::GameMenuState, util::start_game};
+use super::state::GameMenuState;
 use crate::{
     constants::STORY_INTRO,
     map::state::{MapReadinessState, MapState},
+    util::start_game,
 };
 use bevy::{
     app::AppExit,
@@ -29,6 +30,10 @@ pub struct StartButton;
 /// A marker component for the quit button
 #[derive(Debug, Component)]
 pub struct QuitButton;
+
+/// A marker component for the continue button
+#[derive(Debug, Component)]
+pub struct ContinueButton;
 
 /// A marker component for the storyline intro text
 #[derive(Debug, Component)]
@@ -177,6 +182,7 @@ pub fn setup_storyline_intro_screen(
             .min(window_size[1] - 50.0),
     );
 
+    // The parent must be a SpriteBundle for us to use Text2dBundle
     commands
         .spawn(SpriteBundle {
             sprite: Sprite {
@@ -187,7 +193,7 @@ pub fn setup_storyline_intro_screen(
             transform: Transform::from_translation(Vec3::splat(0.0)),
             ..default()
         })
-        .insert(StorylineIntroSprite)
+        .insert((StorylineIntroSprite, MenuRootNode))
         .with_children(|parent| {
             parent
                 .spawn(Text2dBundle {
@@ -211,6 +217,7 @@ pub fn setup_storyline_intro_screen(
                 .insert(StorylineIntroText);
         });
 
+    // Buttons require a NodeBundle parent
     commands
         .spawn(NodeBundle {
             style: Style {
@@ -227,6 +234,7 @@ pub fn setup_storyline_intro_screen(
             },
             ..default()
         })
+        .insert(MenuRootNode)
         .with_children(|parent| {
             parent
                 .spawn(ButtonBundle {
@@ -239,6 +247,7 @@ pub fn setup_storyline_intro_screen(
                     background_color: BUTTON_COLOR.into(),
                     ..default()
                 })
+                .insert(ContinueButton)
                 .with_children(|parent| {
                     parent.spawn(TextBundle::from_section(
                         "Continue",
@@ -289,24 +298,61 @@ pub fn update_storyline_intro_screen_text(
     }
 }
 
-pub fn update_storyline_intro_screen_btn() { warn!("Implement me!"); }
+/// Adds specific functionality to the storyline itnro's continue button
+///
+/// The system will detect when the start button has been clicked and will do
+/// the following:
+/// 1. Update the data store to mark the storyline intro as having been seen.
+/// 2. If so, switch to the [InGame](GameMenuState::InGame) state.
+/// 3. If switching to the [StorylineIntro](GameMenuState::StorylineIntro) state, stop here.
+/// 2. Starts loading in the map by setting the readiness state to
+///    [Loading](MapReadinessState::Loading)
+/// 3. Calls the [start_game](start_game) utility function to actually start the game.
+pub fn update_storyline_intro_screen_btn(
+    mut commands: Commands,
+    mut map_state: ResMut<MapState>,
+    mut next_state: ResMut<NextState<GameMenuState>>,
+    mut next_map_state: ResMut<NextState<MapReadinessState>>,
+    asset_server: Res<AssetServer>,
+    interaction_query: Query<&Interaction, (With<ContinueButton>, Changed<Interaction>)>,
+) {
+    for interaction in &interaction_query {
+        if *interaction == Interaction::Clicked {
+            // Set the menu's state
+            next_state.set(GameMenuState::InGame);
+
+            // Start loading the map
+            next_map_state.set(MapReadinessState::Loading);
+
+            // Start the game
+            start_game(&mut commands, &mut map_state, &asset_server);
+        }
+    }
+}
 
 /// Despawns the UI and is responsible for deinitializing anything the menu used
 pub fn cleanup_start_screen(
     mut commands: Commands,
-    menu_root_query: Query<Entity, With<MenuRootNode>>,
+    query: Query<Entity, With<MenuRootNode>>,
 ) {
     debug!("Cleaning up start screen");
 
     // Desawn the UI
-    menu_root_query.for_each(|node| {
-        commands.entity(node).despawn_recursive();
+    query.for_each(|entity| {
+        commands.entity(entity).despawn_recursive();
     });
 }
 
 /// Despawns the UI for the storyline intro screen
-pub fn cleanup_storyline_intro_screen(mut commands: Commands) {
+pub fn cleanup_storyline_intro_screen(
+    mut commands: Commands,
+    query: Query<Entity, With<MenuRootNode>>,
+) {
     debug!("Cleaning up the storyline intro screen");
+
+    query.for_each(|entity| {
+        commands.entity(entity).despawn_recursive();
+    });
 }
 
 /// Adds hover effects to buttons
