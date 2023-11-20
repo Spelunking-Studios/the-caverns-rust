@@ -19,7 +19,7 @@ use bevy::prelude::*;
 ///             ..default()
 ///         },
 ///         Speed(1.0)
-///     )
+///     ));
 /// }
 /// ```
 #[derive(Component)]
