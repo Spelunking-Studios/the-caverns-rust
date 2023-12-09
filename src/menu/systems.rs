@@ -77,6 +77,7 @@ pub fn setup_start_screen(mut commands: Commands, asset_server: Res<AssetServer>
         .spawn(NodeBundle {
             style: Style {
                 width: Val::Percent(100.0),
+                bottom: Val::Percent(50.0),
                 position_type: PositionType::Absolute,
                 align_items: AlignItems::Center,
                 justify_content: JustifyContent::Center,
@@ -105,7 +106,9 @@ pub fn setup_start_screen(mut commands: Commands, asset_server: Res<AssetServer>
     commands
         .spawn(NodeBundle {
             style: Style {
+                position_type: PositionType::Absolute,
                 width: Val::Percent(100.0),
+                top: Val::Percent(55.0),
                 align_items: AlignItems::Center,
                 justify_content: JustifyContent::Center,
                 flex_direction: FlexDirection::Column,
@@ -234,6 +237,8 @@ pub fn setup_storyline_intro_screen(
         .spawn(NodeBundle {
             style: Style {
                 width: Val::Percent(100.0),
+                bottom: Val::Percent(5.0),
+                position_type: PositionType::Absolute,
                 align_items: AlignItems::Center,
                 justify_content: JustifyContent::End,
                 flex_direction: FlexDirection::Column,

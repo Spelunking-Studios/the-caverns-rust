@@ -16,6 +16,7 @@ pub struct MapState {
     /// would indicate that the texture for the "cave_dirt_floor" tile is
     /// located in the "Main Tileset" texture with and offset of (32, 32).
     pub texture_maps: HashMap<String, (String, u32, u32)>,
+    pub current_level: u32,
 }
 
 /// Represents the various stages of readiness for a map
