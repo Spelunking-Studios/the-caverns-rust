@@ -103,7 +103,7 @@ pub fn setup_map(
 
             // Start loading the texture and grab it's handle
             let image: Handle<Image> = asset_server
-                .load::<Image, PathBuf>(tiled_image.source.clone().canonicalize().unwrap());
+                .load(tiled_image.source.clone().canonicalize().unwrap());
 
             // Add the handle to the textures so that it can be used later
             if !map_state.textures.contains_key(&key) {

@@ -15,8 +15,8 @@ impl Plugin for MapPlugin {
 
         app.insert_resource(MapState { ..default() });
 
-        app.add_asset::<MapAsset>();
-        app.init_asset_loader::<MapAssetLoader>();
+        app.register_asset_loader(MapAssetLoader)
+            .init_asset::<MapAsset>();
         debug!("MapPlugin loaded");
     }
 }

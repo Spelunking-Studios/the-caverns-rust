@@ -10,6 +10,6 @@ pub fn start_game(
     map_state: &mut ResMut<MapState>,
     asset_server: &Res<AssetServer>,
 ) {
-    map_state.handle = asset_server.load("tiled/test.tmx");
+    map_state.handle = asset_server.load("ldtk/map.ldtk");
     spawn_player(commands);
 }
