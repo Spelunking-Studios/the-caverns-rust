@@ -52,18 +52,22 @@ fn main() {
                     level: bevy::log::Level::DEBUG,
                 }),
         )
-        .add_plugins(FrameTimeDiagnosticsPlugin)
-        .add_plugins(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(
-            PIXELS_PER_METER,
+        .add_plugins((
+            FrameTimeDiagnosticsPlugin,
+            RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(PIXELS_PER_METER),
+            RapierDebugRenderPlugin::default(),
+            MapPlugin::default(),
+            MenuPlugin,
         ))
-        .add_plugins(RapierDebugRenderPlugin::default())
-        .add_plugins(MapPlugin::default())
-        .add_plugins(MenuPlugin)
-        .add_systems(Startup, setup)
-        // .add_startup_system(create_fps_text)
-        .add_systems(Update, fps_text_system)
-        .add_systems(Update, handle_input)
-        .add_systems(Update, player_movement.after(handle_input))
+        .add_systems(Startup, (setup, create_fps_text))
+        .add_systems(
+            Update,
+            (
+                fps_text_system,
+                handle_input,
+                player_movement.after(handle_input),
+            ),
+        )
         .run();
 }
 

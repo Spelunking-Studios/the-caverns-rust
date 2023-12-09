@@ -40,27 +40,22 @@ impl Plugin for MenuPlugin {
         // Add the various update systems
         app.add_systems(
             Update,
-            update_button_hover_state.run_if(in_state(GameMenuState::StartScreen)),
-        );
-        app.add_systems(
-            Update,
-            update_start_button.run_if(in_state(GameMenuState::StartScreen)),
-        );
-        app.add_systems(
-            Update,
-            update_quit_button.run_if(in_state(GameMenuState::StartScreen)),
+            (
+                update_button_hover_state,
+                update_start_button,
+                update_quit_button,
+            )
+                .run_if(in_state(GameMenuState::StartScreen)),
         );
 
         app.add_systems(
             Update,
-            update_button_hover_state.run_if(in_state(GameMenuState::StorylineIntro)),
-        );
-        app.add_systems(
-            Update,
             (
-                update_storyline_intro_screen_text.run_if(in_state(GameMenuState::StorylineIntro)),
-                update_storyline_intro_screen_btn.run_if(in_state(GameMenuState::StorylineIntro)),
-            ),
+                update_storyline_intro_screen_text,
+                update_storyline_intro_screen_btn,
+                update_button_hover_state,
+            )
+                .run_if(in_state(GameMenuState::StorylineIntro)),
         );
         debug!("MenuPlugin loaded");
     }
