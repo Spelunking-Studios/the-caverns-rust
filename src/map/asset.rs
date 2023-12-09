@@ -1,13 +1,13 @@
 use bevy::{
     asset::{AssetLoader, FileAssetIo, LoadContext, LoadedAsset},
     prelude::*,
-    reflect::TypeUuid,
+    reflect::{TypePath, TypeUuid},
     utils::BoxedFuture,
 };
 use tiled::Loader;
 
 /// Asset to hold maps
-#[derive(TypeUuid, Debug)]
+#[derive(TypeUuid, TypePath, Debug)]
 #[uuid = "08e151d8-a821-4591-93c5-6125216ebb53"] // Any UUID will work
 pub struct MapAsset {
     /// Holds the name of the map

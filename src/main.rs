@@ -13,7 +13,7 @@ mod util;
 
 use bevy::{
     app::AppExit,
-    diagnostic::{Diagnostics, FrameTimeDiagnosticsPlugin},
+    diagnostic::{DiagnosticsStore, FrameTimeDiagnosticsPlugin},
     log::LogPlugin,
     prelude::*,
 };
@@ -52,18 +52,22 @@ fn main() {
                     level: bevy::log::Level::DEBUG,
                 }),
         )
-        .add_plugin(FrameTimeDiagnosticsPlugin)
-        .add_plugin(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(
-            PIXELS_PER_METER,
+        .add_plugins((
+            FrameTimeDiagnosticsPlugin,
+            RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(PIXELS_PER_METER),
+            RapierDebugRenderPlugin::default(),
+            MapPlugin::default(),
+            MenuPlugin,
         ))
-        .add_plugin(RapierDebugRenderPlugin::default())
-        .add_plugin(MapPlugin::default())
-        .add_plugin(MenuPlugin)
-        .add_startup_system(setup)
-        // .add_startup_system(create_fps_text)
-        .add_system(fps_text_system)
-        .add_system(handle_input)
-        .add_system(player_movement.after(handle_input))
+        .add_systems(Startup, (setup, create_fps_text))
+        .add_systems(
+            Update,
+            (
+                fps_text_system,
+                handle_input,
+                player_movement.after(handle_input),
+            ),
+        )
         .run();
 }
 
@@ -88,11 +92,8 @@ fn create_fps_text(mut commands: Commands, asset_server: Res<AssetServer>) {
         .with_text_alignment(TextAlignment::Center)
         .with_style(Style {
             position_type: PositionType::Absolute,
-            position: UiRect {
-                top: Val::Px(5.0),
-                left: Val::Px(5.0),
-                ..default()
-            },
+            top: Val::Px(5.0),
+            left: Val::Px(5.0),
             ..default()
         }),
         FPSText { timer: 0.0 },
@@ -109,7 +110,7 @@ fn handle_input(keys: Res<Input<KeyCode>>, mut exit: EventWriter<AppExit>) {
 
 /// A system to display the game's current FPS
 fn fps_text_system(
-    diagnostics: Res<Diagnostics>,
+    diagnostics: Res<DiagnosticsStore>,
     time: Res<Time>,
     mut labels: Query<(&mut Text, &mut FPSText)>,
 ) {
@@ -139,7 +140,7 @@ mod test {
         let mut app: App = App::new();
 
         // Add systems & plugins
-        app.add_startup_system(setup);
+        app.add_systems(Startup, setup);
 
         // Update the app
         app.update();

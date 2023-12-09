@@ -76,7 +76,7 @@ pub fn setup_start_screen(mut commands: Commands, asset_server: Res<AssetServer>
     commands
         .spawn(NodeBundle {
             style: Style {
-                size: Size::width(Val::Percent(100.0)),
+                width: Val::Percent(100.0),
                 position_type: PositionType::Absolute,
                 align_items: AlignItems::Center,
                 justify_content: JustifyContent::Center,
@@ -105,11 +105,12 @@ pub fn setup_start_screen(mut commands: Commands, asset_server: Res<AssetServer>
     commands
         .spawn(NodeBundle {
             style: Style {
-                size: Size::width(Val::Percent(100.0)),
+                width: Val::Percent(100.0),
                 align_items: AlignItems::Center,
                 justify_content: JustifyContent::Center,
                 flex_direction: FlexDirection::Column,
-                gap: Size::new(Val::Px(0.0), Val::Percent(5.0)),
+                column_gap: Val::Px(0.0),
+                row_gap: Val::Percent(5.0),
                 ..default()
             },
             ..default()
@@ -120,7 +121,8 @@ pub fn setup_start_screen(mut commands: Commands, asset_server: Res<AssetServer>
             parent
                 .spawn(ButtonBundle {
                     style: Style {
-                        size: Size::new(Val::Px(150.0), Val::Px(65.0)),
+                        width: Val::Px(150.0),
+                        height: Val::Px(65.0),
                         justify_content: JustifyContent::Center,
                         align_items: AlignItems::Center,
                         ..default()
@@ -144,7 +146,8 @@ pub fn setup_start_screen(mut commands: Commands, asset_server: Res<AssetServer>
             parent
                 .spawn(ButtonBundle {
                     style: Style {
-                        size: Size::new(Val::Px(150.0), Val::Px(65.0)),
+                        width: Val::Px(150.0),
+                        height: Val::Px(65.0),
                         justify_content: JustifyContent::Center,
                         align_items: AlignItems::Center,
                         ..default()
@@ -216,7 +219,7 @@ pub fn setup_storyline_intro_screen(
                             },
                         )],
                         alignment: TextAlignment::Center,
-                        linebreak_behaviour: BreakLineOn::WordBoundary,
+                        linebreak_behavior: BreakLineOn::WordBoundary,
                     },
                     text_2d_bounds: Text2dBounds { size: bounds },
                     // Ensure the text is drawn on top of the box
@@ -230,11 +233,12 @@ pub fn setup_storyline_intro_screen(
     commands
         .spawn(NodeBundle {
             style: Style {
-                size: Size::width(Val::Percent(100.0)),
+                width: Val::Percent(100.0),
                 align_items: AlignItems::Center,
                 justify_content: JustifyContent::End,
                 flex_direction: FlexDirection::Column,
-                gap: Size::new(Val::Px(0.0), Val::Percent(5.0)),
+                column_gap: Val::Px(0.0),
+                row_gap: Val::Percent(5.0),
                 padding: UiRect {
                     bottom: Val::Px(25.0),
                     ..default()
@@ -248,7 +252,8 @@ pub fn setup_storyline_intro_screen(
             parent
                 .spawn(ButtonBundle {
                     style: Style {
-                        size: Size::new(Val::Px(200.0), Val::Px(65.0)),
+                        width: Val::Px(200.0),
+                        height: Val::Px(65.0),
                         justify_content: JustifyContent::Center,
                         align_items: AlignItems::Center,
                         ..default()
@@ -326,7 +331,7 @@ pub fn update_storyline_intro_screen_btn(
     interaction_query: Query<&Interaction, (With<ContinueButton>, Changed<Interaction>)>,
 ) {
     for interaction in &interaction_query {
-        if *interaction == Interaction::Clicked {
+        if *interaction == Interaction::Pressed {
             // Set the menu's state
             next_state.set(GameMenuState::InGame);
 
@@ -402,7 +407,7 @@ pub fn update_start_button(
     asset_server: Res<AssetServer>,
 ) {
     for interaction in &mut interaction_query {
-        if *interaction == Interaction::Clicked {
+        if *interaction == Interaction::Pressed {
             if !storyline_intro_shown() {
                 next_state.set(GameMenuState::StorylineIntro);
                 continue;
@@ -426,7 +431,7 @@ pub fn update_quit_button(
     mut exit_event: EventWriter<AppExit>,
 ) {
     for interaction in &mut interaction_query {
-        if *interaction == Interaction::Clicked {
+        if *interaction == Interaction::Pressed {
             exit_event.send(AppExit);
         }
     }

@@ -24,27 +24,39 @@ impl Plugin for MenuPlugin {
         app.add_state::<GameMenuState>();
 
         // Add the setup system
-        app.add_system(setup_start_screen.in_schedule(OnEnter(GameMenuState::StartScreen)));
-        app.add_system(
-            setup_storyline_intro_screen.in_schedule(OnEnter(GameMenuState::StorylineIntro)),
+        app.add_systems(OnEnter(GameMenuState::StartScreen), setup_start_screen);
+        app.add_systems(
+            OnEnter(GameMenuState::StorylineIntro),
+            setup_storyline_intro_screen,
         );
 
         // Add the cleanup system
-        app.add_system(cleanup_start_screen.in_schedule(OnExit(GameMenuState::StartScreen)));
-        app.add_system(
-            cleanup_storyline_intro_screen.in_schedule(OnExit(GameMenuState::StorylineIntro)),
+        app.add_systems(OnExit(GameMenuState::StartScreen), cleanup_start_screen);
+        app.add_systems(
+            OnExit(GameMenuState::StorylineIntro),
+            cleanup_storyline_intro_screen,
         );
 
         // Add the various update systems
-        app.add_system(update_button_hover_state.in_set(OnUpdate(GameMenuState::StartScreen)));
-        app.add_system(update_start_button.in_set(OnUpdate(GameMenuState::StartScreen)));
-        app.add_system(update_quit_button.in_set(OnUpdate(GameMenuState::StartScreen)));
+        app.add_systems(
+            Update,
+            (
+                update_button_hover_state,
+                update_start_button,
+                update_quit_button,
+            )
+                .run_if(in_state(GameMenuState::StartScreen)),
+        );
 
-        app.add_system(update_button_hover_state.in_set(OnUpdate(GameMenuState::StorylineIntro)));
-        app.add_systems((
-            update_storyline_intro_screen_text.in_set(OnUpdate(GameMenuState::StorylineIntro)),
-            update_storyline_intro_screen_btn.in_set(OnUpdate(GameMenuState::StorylineIntro)),
-        ));
+        app.add_systems(
+            Update,
+            (
+                update_storyline_intro_screen_text,
+                update_storyline_intro_screen_btn,
+                update_button_hover_state,
+            )
+                .run_if(in_state(GameMenuState::StorylineIntro)),
+        );
         debug!("MenuPlugin loaded");
     }
 }

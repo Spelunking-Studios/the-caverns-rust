@@ -11,7 +11,7 @@ pub struct MapPlugin {}
 impl Plugin for MapPlugin {
     fn build(&self, app: &mut App) {
         app.add_state::<MapReadinessState>();
-        app.add_system(setup_map.in_schedule(OnEnter(MapReadinessState::Loading)));
+        app.add_systems(OnEnter(MapReadinessState::Loading), setup_map);
 
         app.insert_resource(MapState { ..default() });
 

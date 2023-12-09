@@ -7,7 +7,5 @@ use bevy::prelude::*;
 pub struct DataStorePlugin;
 
 impl Plugin for DataStorePlugin {
-    fn build(&self, app: &mut App) {
-        
-    }
+    fn build(&self, app: &mut App) {}
 }
