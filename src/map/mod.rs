@@ -8,6 +8,7 @@
 //! - A bunch of components to mark or hold info for the various different tiles
 
 pub mod asset;
+pub mod level;
 pub mod loader;
 pub mod plugin;
 pub mod state;

@@ -33,7 +33,7 @@
 //! // Example
 //!
 //! // Start loading the map
-//! map_state.handle = asset_server.load("tiled/test.tmx");
+//! map_state.handle = asset_server.load("ldtk/map.ldtk");
 //! // Switch to the Loading state
 //! next_map_readiness.set(MapReadinessState::Loading);
 //! ```
@@ -47,12 +47,12 @@
 
 use super::{
     asset::MapAsset,
-    state::{MapReadinessState, MapState},
+    state::{LevelReadinessState, MapReadinessState, MapState},
     util::map_cord_to_world_cord,
 };
 use crate::constants::{DRAW_LAYER, PIXELS_PER_METER};
 use bevy::prelude::*;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 /// Sets up the world's current map.
 ///
@@ -64,13 +64,12 @@ pub fn setup_map(
     mut commands: Commands,
     mut map_state: ResMut<MapState>,
     mut next_map_readiness: ResMut<NextState<MapReadinessState>>,
+    mut next_level_readiness: ResMut<NextState<LevelReadinessState>>,
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
     map_server: Res<Assets<MapAsset>>,
     asset_server: Res<AssetServer>,
+    images: ResMut<Assets<Image>>
 ) {
-    // Switch into the Loaded state since the asset loader can't do that on its own
-    next_map_readiness.set(MapReadinessState::Loaded);
-
     // Attempt to grab the map asset
     let map_asset = map_server.get(&map_state.handle);
 
@@ -92,38 +91,33 @@ pub fn setup_map(
     );
 
     info!("Loading tilesets");
-    let tilesets = map.map.tilesets();
+    let tilesets = &map.project.defs.tilesets;
 
     for tileset in tilesets {
-        debug!("Loading tileset {:?}", tileset.name);
+        debug!("Loading tileset {:?}", tileset.identifier);
 
-        let tiled_image = tileset.image.as_ref();
-        if let Some(tiled_image) = tiled_image {
-            let key = tileset.name.clone();
+        if let Some(tileset_path) = tileset.rel_path.clone() {
+            let image_path = Path::new("ldtk").join(PathBuf::from(tileset_path));
 
             // Start loading the texture and grab it's handle
-            let image: Handle<Image> = asset_server
-                .load(tiled_image.source.clone().canonicalize().unwrap());
-
-            // Add the handle to the textures so that it can be used later
-            if !map_state.textures.contains_key(&key) {
-                map_state.textures.insert(key.clone(), image.clone());
-            }
+            let image: Handle<Image> = asset_server.load(image_path);
+            let image_asset = images.get(image.id());
+            debug!("{:?}", image_asset);
 
             // If there is no existing texture atlas, then create a new one
             // and add it to the hashmap
-            if !map_state.texture_atlases.contains_key(&key) {
+            if !map_state.texture_atlases.contains_key(&tileset.uid) {
                 let atlas: TextureAtlas = TextureAtlas::from_grid(
                     image.clone(), // Pass a handle to the tileset img
-                    Vec2::new(tileset.tile_width as f32, tileset.tile_height as f32),
-                    tileset.columns as usize,
-                    (tileset.tilecount / tileset.columns) as usize,
+                    Vec2::new(tileset.tile_grid_size as f32, tileset.tile_grid_size as f32),
+                    tileset.__c_wid as usize,
+                    tileset.__c_hei as usize,
                     Some(Vec2::new(0.0, 0.0)),
                     Some(Vec2::new(0.0, 0.0)),
                 );
                 map_state
                     .texture_atlases
-                    .insert(key, texture_atlases.add(atlas));
+                    .insert(tileset.uid, texture_atlases.add(atlas));
             }
         }
     }
@@ -134,31 +128,35 @@ pub fn setup_map(
         map_state.texture_atlases.len()
     );
 
-    // Process tile layers
+    // Switch into the Loaded state since the asset loader can't do that on its own
+    next_map_readiness.set(MapReadinessState::Loaded);
+
+    // We also want to place the player in a world so we can load the current level
+    next_level_readiness.set(LevelReadinessState::Loading);
+
+    return;
+
+    // Process map layers
 
     // Get a vector of all the layers in reverse order
-    let mut layers: Vec<tiled::Layer> = vec![];
+    let mut layers: Vec<&ldtk::LayerDef> = vec![];
 
-    for layer in map.map.layers() {
+    for layer in &map.project.defs.layers {
         layers.push(layer); // Add the layer to the end
         layers.rotate_right(1); // Rotate the vector so the last item is the first
     }
 
     // Get a iterable of all of the tile layers
-    let tile_layers = layers
-        .into_iter()
-        .filter_map(|layer| match layer.layer_type() {
-            tiled::LayerType::Tiles(layer) => Some(layer),
-            _ => None,
-        });
+    let tile_layers = layers.into_iter().filter(|layer| {
+        matches!(&layer.layer_def_type,
+            serde_json::Value::String(e) if e == &"Tiles".to_string())
+    });
 
     // Process each tile layer
-    for layer in tile_layers {
-        let width = layer.width().unwrap();
-        let height = layer.height().unwrap();
+    /*for layer in tile_layers {
 
-        for x in 0..width {
-            for y in 0..height {
+        for x in 0..layer.grid_size {
+            for y in 0..layer.grid_size {
                 let tile = layer.get_tile(x as i32, y as i32);
 
                 // Continue processing the next tile if the current tile
@@ -191,7 +189,7 @@ pub fn setup_map(
                     });
 
                 // Spawn the tile
-                commands.spawn(SpriteSheetBundle {
+                /*commands.spawn(SpriteSheetBundle {
                     sprite: TextureAtlasSprite {
                         index: texture_index,
                         custom_size: Some(Vec2::new(PIXELS_PER_METER, PIXELS_PER_METER)),
@@ -205,12 +203,12 @@ pub fn setup_map(
                     )),
                     texture_atlas: atlas_handle.clone(),
                     ..default()
-                });
+                });*/
             }
         }
-    }
+    }*/
 
-    let width = map.map.width * map.map.tile_width;
+    /*let width = map.map.width * map.map.tile_width;
     let height = map.map.height * map.map.tile_height;
     commands.spawn(SpriteBundle {
         sprite: Sprite {
@@ -221,5 +219,5 @@ pub fn setup_map(
         },
         transform: Transform::from_translation(Vec3::new(0.0, 0.0, DRAW_LAYER::BASE)),
         ..default()
-    });
+    });*/
 }
