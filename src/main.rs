@@ -18,6 +18,9 @@ use bevy::{
     prelude::*,
 };
 use bevy_rapier2d::prelude::*;
+use bevy_screen_diagnostics::{
+    ScreenDiagnosticsPlugin, ScreenEntityDiagnosticsPlugin, ScreenFrameDiagnosticsPlugin,
+};
 
 use constants::{LOG_FILTER, PIXELS_PER_METER};
 use map::plugin::MapPlugin;
@@ -53,21 +56,16 @@ fn main() {
                 }),
         )
         .add_plugins((
-            FrameTimeDiagnosticsPlugin,
+            ScreenDiagnosticsPlugin::default(),
+            ScreenFrameDiagnosticsPlugin,
+            ScreenEntityDiagnosticsPlugin,
             RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(PIXELS_PER_METER),
             RapierDebugRenderPlugin::default(),
             MapPlugin::default(),
             MenuPlugin,
         ))
-        .add_systems(Startup, (setup, create_fps_text))
-        .add_systems(
-            Update,
-            (
-                fps_text_system,
-                handle_input,
-                player_movement.after(handle_input),
-            ),
-        )
+        .add_systems(Startup, (setup))
+        .add_systems(Update, (handle_input, player_movement.after(handle_input)))
         .run();
 }
 
@@ -105,28 +103,6 @@ fn handle_input(keys: Res<Input<KeyCode>>, mut exit: EventWriter<AppExit>) {
     // Quit
     if keys.pressed(KeyCode::Escape) {
         exit.send(AppExit);
-    }
-}
-
-/// A system to display the game's current FPS
-fn fps_text_system(
-    diagnostics: Res<DiagnosticsStore>,
-    time: Res<Time>,
-    mut labels: Query<(&mut Text, &mut FPSText)>,
-) {
-    for mut text in &mut labels {
-        text.1.timer += time.delta_seconds();
-        if text.1.timer < 0.5 {
-            continue;
-        } else {
-            text.1.timer = 0.0;
-        }
-
-        if let Some(fps) = diagnostics.get(FrameTimeDiagnosticsPlugin::FPS) {
-            if let Some(value) = fps.smoothed() {
-                text.0.sections[0].value = format!("FPS: {value:.2}");
-            }
-        }
     }
 }
 

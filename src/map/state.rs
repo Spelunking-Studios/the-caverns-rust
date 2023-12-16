@@ -19,8 +19,7 @@ pub struct MapState {
 }
 
 #[derive(Debug, Resource)]
-pub struct LevelState {
-}
+pub struct LevelState {}
 
 /// Represents the various stages of readiness for a map
 #[derive(Debug, Clone, Copy, Eq, PartialEq, Hash, Default, States)]
@@ -56,5 +55,5 @@ pub enum LevelReadinessState {
     Loaded,
 
     // The level is currently unloading and unfit for gameplay
-    Unloading
+    Unloading,
 }

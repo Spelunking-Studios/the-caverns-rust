@@ -50,6 +50,7 @@ pub fn player_movement(
     mut cameras: Query<&mut Transform, (With<Camera2d>, Without<Player>)>,
 ) {
     let mut camera_transform = cameras.single_mut();
+
     for (speed, mut velocity, transform) in players.iter_mut() {
         // Start Moving
         if keys.pressed(KEYMAP::FORWARD) {

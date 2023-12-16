@@ -1,5 +1,5 @@
 use bevy::{
-    asset::{AssetLoader, LoadContext, io::Reader},
+    asset::{io::Reader, AssetLoader, LoadContext},
     prelude::*,
     reflect::{TypePath, TypeUuid},
     utils::BoxedFuture,
@@ -38,7 +38,10 @@ impl AssetLoader for MapAssetLoader {
             let project: ldtk::Project = serde_json::from_slice(&bytes)?;
 
             // Build the asset
-            let asset = MapAsset { name: None, project };
+            let asset = MapAsset {
+                name: None,
+                project,
+            };
 
             Ok(asset)
         })

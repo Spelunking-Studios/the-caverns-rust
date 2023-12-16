@@ -68,7 +68,7 @@ pub fn setup_map(
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
     map_server: Res<Assets<MapAsset>>,
     asset_server: Res<AssetServer>,
-    images: ResMut<Assets<Image>>
+    images: ResMut<Assets<Image>>,
 ) {
     // Attempt to grab the map asset
     let map_asset = map_server.get(&map_state.handle);

@@ -2,7 +2,7 @@ use super::{
     asset::{MapAsset, MapAssetLoader},
     level::load_level,
     loader::setup_map,
-    state::{MapReadinessState, LevelReadinessState, MapState},
+    state::{LevelReadinessState, MapReadinessState, MapState},
 };
 use bevy::prelude::*;
 
