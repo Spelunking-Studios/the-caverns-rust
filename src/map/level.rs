@@ -1,11 +1,17 @@
 use super::{
     asset::MapAsset,
     state::{LevelReadinessState, MapState},
+    tiles::PlayerSpawnTile,
 };
 use crate::constants::{DRAW_LAYER, PIXELS_PER_METER};
+use crate::player::Player;
 use bevy::prelude::*;
 use bevy::render::texture::{ImageFilterMode, ImageSampler, ImageSamplerDescriptor};
+use bevy_rapier2d::prelude::*;
 
+/// Loads in the current level.
+///
+/// Handler for the [LevelReadinessState::Loading] state.
 pub fn load_level(
     mut commands: Commands,
     mut map_state: ResMut<MapState>,
@@ -13,6 +19,7 @@ pub fn load_level(
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
     map_server: Res<Assets<MapAsset>>,
     mut images: ResMut<Assets<Image>>,
+    mut player_position: Query<&mut Transform, (With<RigidBody>, With<Player>)>,
 ) {
     debug!("Loading level");
 
@@ -74,22 +81,40 @@ pub fn load_level(
                         let texture_index =
                             (tile.src[0] / 32) as f32 + (tile.src[1] / 32) as f32 * texture_cols;
 
-                        commands.spawn(SpriteSheetBundle {
-                            sprite: TextureAtlasSprite {
-                                index: texture_index as usize,
-                                custom_size: Some(Vec2::new(PIXELS_PER_METER, PIXELS_PER_METER)),
-                                anchor: bevy::sprite::Anchor::BottomLeft,
+                        let tile_id = commands
+                            .spawn(SpriteSheetBundle {
+                                sprite: TextureAtlasSprite {
+                                    index: texture_index as usize,
+                                    custom_size: Some(Vec2::new(
+                                        PIXELS_PER_METER,
+                                        PIXELS_PER_METER,
+                                    )),
+                                    anchor: bevy::sprite::Anchor::Center,
+                                    ..default()
+                                },
+                                transform: Transform::from_translation(Vec3::new(
+                                    (layer_offset[0] / 32) as f32 * PIXELS_PER_METER,
+                                    -1. * (layer_offset[1] / 32) as f32 * PIXELS_PER_METER,
+                                    DRAW_LAYER::MAP,
+                                )),
+                                texture_atlas: texture_atlas_handle.unwrap().clone(),
                                 ..default()
-                            },
-                            transform: Transform::from_translation(Vec3::new(
-                                (layer_offset[0] / 32) as f32 * PIXELS_PER_METER,
-                                -1. * (layer_offset[1] / 32) as f32 * PIXELS_PER_METER,
-                                DRAW_LAYER::MAP,
-                            )),
-                            texture_atlas: texture_atlas_handle.unwrap().clone(),
-                            ..default()
-                        });
+                            })
+                            .id();
+
+                        if tile.t == 2 {
+                            commands.entity(tile_id).insert(PlayerSpawnTile::default());
+                            for mut position in &mut player_position {
+                                position.translation.x =
+                                    (layer_offset[0] / 32) as f32 * PIXELS_PER_METER;
+                                position.translation.y =
+                                    -1. * (layer_offset[1] / 32) as f32 * PIXELS_PER_METER;
+                            }
+                        }
                     }
+                }
+                "IntGrid" => {
+                    debug!("IntGrid");
                 }
                 _ => {}
             }

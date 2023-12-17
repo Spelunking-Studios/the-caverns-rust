@@ -73,10 +73,17 @@ pub fn setup_map(
     // Attempt to grab the map asset
     let map_asset = map_server.get(&map_state.handle);
 
-    // We can't work on a non-existant map
+    // We can't work on a non-existant map so we wait for it
     if map_asset.is_none() {
         warn!("MapReadinessState is Loading yet the map asset is None.");
-        return;
+        loop {
+            let load_state = asset_server.get_load_state(map_state.handle.id());
+            if let Some(state) = load_state {
+                if state == bevy::asset::LoadState::Loaded {
+                    break
+                }
+            }
+        }
     }
 
     // Actually get the map
